@@ -23,7 +23,7 @@ sudo systemctl stop dnsmasq
 
 echo "interface wlan0" >> $dhcpFile
 echo "static ip_address=192.168.0.10/24" >>$dhcpFile
-echo "denyinterfaces eth0">>$dhcpfile
+echo "denyinterfaces eth0">>$dhcpFile
 echo "denyinterfaces wlan0">>$dhcpFile
 
 #Configure DHCP Server (dnsmasq)
@@ -38,14 +38,14 @@ echo "dhcp-range=192.168.0.11,192.168.0.30" >> /etc/dnsmasq.conf
 echo "interface=wlan0" >> $hostapdFile
 echo "bridge=br0" >> $hostapdFile
 echo "hw_mode=g">> $hostapdFile
-echo"channel=7" >> $hostapdFile
+echo "channel=7" >> $hostapdFile
 echo "wmm_enabble=0">>$hostapdFile
 echo "macaddr_acl=0">>$hostapdFile
 echo "auth_algs=1">>$hostapdFile
 echo "ignore_broadcast_ssid=0">>$hostapdFile
 echo "wpa=2">>$hostapdFile
 echo "wpa_key_mgmt=WPA-PSK" >> $hostapdFile
-echo "wpa_pairwise=TKIP" >> $hotapdFile
+echo "wpa_pairwise=TKIP" >> $hostapdFile
 echo "rsn_pairwise=CCMP" >>$hostapdFile
 echo "ssid=$SSID">>$hostapdFile
 echo "wpa_passphrase=$PASS">>$hostapdFile
@@ -54,7 +54,7 @@ echo "DAEMON_CONF=\"/etc/hostapd/hostapd.conf\"" >> /etc/default/hostapd
 
 echo "net.ipv4.ip_forward=1">>/etc/sysctl.conf
 
-sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+sudo iptables -t NAT -A POSTROUTING -o eth0 -j MASQUERADE
 sudo sh -c "iptables-save > /etc/iptables.ipv4.nat"
 iptables-restore < /etc/iptables.ipv4.nat
 
@@ -66,4 +66,4 @@ sudo brctl addif br0 eth0
 
 echo "auto bro0">>/etc/network/interfaces
 echo "iface bro0 inet manual">>/etc/network/interfaces
-echo "bridge_ports eth0 wlano">>/etc/network/interfaces
+echo "bridge_ports eth0 wlan0">>/etc/network/interfaces
