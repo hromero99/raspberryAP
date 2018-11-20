@@ -1,10 +1,10 @@
 #!/bin/bash
 
-function killProcess{
+killProcess () {
 
     ps aux | grep $1 &>/dev/null
     while [ $? -eq 0 ];do
-        kilall $1
+        killall $1
     done 
 }
 

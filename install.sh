@@ -3,8 +3,8 @@
 dhcpFile="/etc/dhcpcd.conf"
 hostapdFile="/etc/hostapd/hostapd.conf"
 
-SSID="testingAP"
-PASS="Password"
+SSID=$1
+PASS=$2
 
 if [ $UID -ne 0 ]; then
     echo "[!] You should run this as root"
@@ -45,7 +45,6 @@ echo "rsn_pairwise=CCMP" >>$hostapdFile
 echo "ssid=$SSID">>$hostapdFile
 echo "wpa_passphrase=$PASS">>$hostapdFile
 
-echo "DAEMON_CONF=\"/etc/hostapd/hostapd.conf\"" >> /etc/default/hostapd
 
 #Enable forwaring and configure persistent iptables
 echo "net.ipv4.ip_forward=1">>/etc/sysctl.conf
@@ -53,4 +52,5 @@ echo "net.ipv4.ip_forward=1">>/etc/sysctl.conf
 iptables -t NAT -A POSTROUTING -o eth0 -j MASQUERADE
 sudo sh -c "iptables-save > /etc/iptables.ipv4.nat"
 iptables-restore < /etc/iptables.ipv4.nat
+
 
