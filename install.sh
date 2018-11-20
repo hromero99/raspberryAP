@@ -11,35 +11,30 @@ if [ $UID -ne 0 ]; then
     exit
 fi
 
-sudo apt-get update && sudo apt-get -y upgrade
-
-sudo apt-get -y install hostapd dnsmasq
-
 #Install software
-sudo systemctl stop hostapd
-sudo systemctl stop dnsmasq
+apt-get update && sudo apt-get -y upgrade
+apt-get -y install hostapd dnsmasq iptables-persistent
+systemctl stop hostapd
+systemctl stop dnsmasq
 
 #Configure static ip for wlan0
-
 echo "interface wlan0" >> $dhcpFile
-echo "static ip_address=192.168.0.10/24" >>$dhcpFile
-echo "denyinterfaces eth0">>$dhcpFile
-echo "denyinterfaces wlan0">>$dhcpFile
+echo "static ip_address=192.168.4.1/24" >>$dhcpFile
 
 #Configure DHCP Server (dnsmasq)
 
-cp /etc/dnsmasq.conf /etc/dnsmasq.conf.backup
+mv  /etc/dnsmasq.conf /etc/dnsmasq.conf.backup
 
 echo "interface=wlan0" >> /etc/dnsmasq.conf
-echo "dhcp-range=192.168.0.11,192.168.0.30" >> /etc/dnsmasq.conf
+echo "dhcp-range=192.168.4.2,192.168.4.200,255.255.255.0,24h" >> /etc/dnsmasq.conf
 
 #Configure hostapd
 
 echo "interface=wlan0" >> $hostapdFile
-echo "bridge=br0" >> $hostapdFile
+echo "driver=nl80211">>$hostapdFile
 echo "hw_mode=g">> $hostapdFile
 echo "channel=7" >> $hostapdFile
-echo "wmm_enabble=0">>$hostapdFile
+echo "wmm_enabled=0">>$hostapdFile
 echo "macaddr_acl=0">>$hostapdFile
 echo "auth_algs=1">>$hostapdFile
 echo "ignore_broadcast_ssid=0">>$hostapdFile
@@ -52,18 +47,10 @@ echo "wpa_passphrase=$PASS">>$hostapdFile
 
 echo "DAEMON_CONF=\"/etc/hostapd/hostapd.conf\"" >> /etc/default/hostapd
 
+#Enable forwaring and configure persistent iptables
 echo "net.ipv4.ip_forward=1">>/etc/sysctl.conf
 
-sudo iptables -t NAT -A POSTROUTING -o eth0 -j MASQUERADE
+iptables -t NAT -A POSTROUTING -o eth0 -j MASQUERADE
 sudo sh -c "iptables-save > /etc/iptables.ipv4.nat"
 iptables-restore < /etc/iptables.ipv4.nat
 
-#Enable internet connection
-
-sudo apt-get -y install bridge-utils
-sudo brctl addbr br0
-sudo brctl addif br0 eth0
-
-echo "auto bro0">>/etc/network/interfaces
-echo "iface bro0 inet manual">>/etc/network/interfaces
-echo "bridge_ports eth0 wlan0">>/etc/network/interfaces
