@@ -16,6 +16,7 @@ fi
 
 killProcess wpa_supplicant
 killProcess hostapd
+killProcess dhclient
 ifconfig wlan0 up 
 hostapd -B /etc/hostapd/hostapd.conf
 
